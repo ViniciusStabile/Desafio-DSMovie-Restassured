@@ -13,6 +13,8 @@ import org.junit.jupiter.api.Test;
 public class MovieControllerRA {
 	
 	
+	private Long existingMovieId, nonExistingMovieId;
+	
 	private String movieTitle;
 	
 	@BeforeEach
@@ -21,6 +23,9 @@ public class MovieControllerRA {
 		baseURI = "http://localhost:8080";
 		
 	movieTitle = "Matrix";
+	existingMovieId = 1L;
+	nonExistingMovieId = 200L;
+	
 		
 	}
 	
@@ -59,7 +64,17 @@ public class MovieControllerRA {
 	}
 	
 	@Test
-	public void findByIdShouldReturnMovieWhenIdExists() {		
+	public void findByIdShouldReturnMovieWhenIdExists() {	
+		
+		given().get("/movies/{existingMovieId}",existingMovieId)
+		.then()
+		.statusCode(200)
+		.body("id", is(1))
+		.body("title", equalTo("The Witcher"))
+		.body("score", is(4.5F))
+		.body("count", is(2))
+		.body("image", equalTo("https://www.themoviedb.org/t/p/w533_and_h300_bestv2/jBJWaqoSCiARWtfV0GlqHrcdidd.jpg"));
+		
 	}
 	
 	@Test
