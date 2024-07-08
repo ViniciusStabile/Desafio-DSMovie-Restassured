@@ -1,31 +1,56 @@
 package com.devsuperior.dsmovie.controllers;
 
-import static io.restassured.RestAssured.*;
-import static io.restassured.matcher.RestAssuredMatchers.*;
+import static io.restassured.RestAssured.baseURI;
+import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.json.JSONException;
+import org.json.simple.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import com.devsuperior.dsmovie.tests.TokenUtil;
+
+import io.restassured.http.ContentType;
 
 
 public class MovieControllerRA {
 	
 	
+	private String clientUsername,clientPassword,adminUsername,adminPassword;
+	private String clientToken, adminToken, invalidToken;
 	private Long existingMovieId, nonExistingMovieId;
-	
 	private String movieTitle;
 	
+	private Map<String, Object> postMovieInstance;
+	
 	@BeforeEach
-	public void setUp() {
+	public void setUp() throws JSONException {
 		
 		baseURI = "http://localhost:8080";
 		
-	movieTitle = "Matrix";
-	existingMovieId = 1L;
-	nonExistingMovieId = 200L;
+		clientUsername = "maria@gmail.com";
+		clientPassword = "123456";
+		adminUsername = "alex@gmail.com";
+		adminPassword = "123456";
+		
+		adminToken = TokenUtil.obtainAccessToken(adminUsername, adminPassword);
+		clientToken = TokenUtil.obtainAccessToken(clientUsername, clientPassword);
+		invalidToken = adminToken + "xpto";
+		
+		movieTitle = "Matrix";
+		existingMovieId = 1L;
+		nonExistingMovieId = 200L;
 	
+		postMovieInstance = new HashMap<>();
+		postMovieInstance.put("title", "Creed: Nascido para Lutar");
+		postMovieInstance.put("score", 9.0);
+		postMovieInstance.put("count", 2);
+		postMovieInstance.put("image","https://www.themoviedb.org/creed");
 		
 	}
 	
@@ -87,7 +112,17 @@ public class MovieControllerRA {
 	}
 	
 	@Test
-	public void insertShouldReturnUnprocessableEntityWhenAdminLoggedAndBlankTitle() throws JSONException {		
+	public void insertShouldReturnUnprocessableEntityWhenAdminLoggedAndBlankTitle() throws JSONException {	
+		
+		postMovieInstance.put("title", null);
+		
+		JSONObject newMovie = new JSONObject(postMovieInstance);
+		
+		given().header("Content_type", "application/json").header("Authorization", "Bearer " + adminToken)
+		.body(newMovie).contentType(ContentType.JSON).accept(ContentType.JSON)
+		.when().post("/movies").then().statusCode(422)
+		
+		;
 	}
 	
 	@Test
