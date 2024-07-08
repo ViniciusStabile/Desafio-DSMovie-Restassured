@@ -79,6 +79,11 @@ public class MovieControllerRA {
 	
 	@Test
 	public void findByIdShouldReturnNotFoundWhenIdDoesNotExist() {	
+		
+		given().get("/movies/{existingMovieId}",nonExistingMovieId)
+		.then()
+		.statusCode(404);
+		
 	}
 	
 	@Test
