@@ -67,6 +67,17 @@ public class ScoreControllerRA {
 
 	@Test
 	public void saveScoreShouldReturnUnprocessableEntityWhenMissingMovieId() throws Exception {
+		
+		postScoreInstance.put("movieId", null);
+
+		JSONObject newScore = new JSONObject(postScoreInstance);
+
+		given().header("Content_type", "application/json").header("Authorization", "Bearer " + clientToken)
+				.body(newScore).contentType(ContentType.JSON).accept(ContentType.JSON).when().put("/scores").then()
+				.statusCode(422).body("errors.message[0]", equalTo("Campo requerido"))
+				
+				;
+		
 	}
 
 	@Test
